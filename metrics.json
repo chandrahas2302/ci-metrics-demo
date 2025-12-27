@@ -1,0 +1,18 @@
+{
+  "total_tasks": 10,
+  "is_production": 0,
+  "failed_tasks": 0,
+  "stage_count": 1,
+  "task_failure_rate": 0.0,
+  "project_age_days": 0,
+  "days_since_last_push": 0,
+  "stars_to_forks_ratio": 1.0,
+  "build_tool_count": 1,
+  "uses_legacy_build": 0,
+  "uses_multiple_ides": 0,
+  "uses_ci_and_submodules": 0,
+  "avg_file_churn": 0,
+  "new_file_ratio": 0.1,
+  "dependency_error_rate": 0.0,
+  "compiler_error_rate": 0.0
+}
