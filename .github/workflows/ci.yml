@@ -33,3 +33,21 @@ jobs:
     - name: Show metrics
       run: |
         cat metrics.json
+    - name: Send metrics to Deployment Gate API
+      run: |
+        echo "Sending metrics to Deployment Gate..."
+
+        response=$(curl -s -X POST "https://deployment-gate.onrender.com/evaluate" \
+          -H "Content-Type: application/json" \
+          -d @metrics.json)
+        echo "API response"
+        echo "$response"
+        decision=$(echo "$response" | jq -r '.decision')
+        echo "Decision: $decision"
+
+        if["$descision"="BLOCK"]; then
+          echo "Deployment blocked by AI gate"
+          exit 1
+
+        fi
+        
