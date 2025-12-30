@@ -18,33 +18,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
+      - name: Send pipeline context to Deployment Gate API
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run metrics collector
-        run: |
-          python scripts/collect_metrics.py
-
-      - name: Show metrics
-        run: |
-          echo "Collected metrics:"
-          cat metrics.json
-
-      - name: Send metrics to Deployment Gate API
-        run: |
-          echo "Sending metrics to Deployment Gate..."
+          echo "Sending pipeline context to Deployment Gate..."
           echo "API URL: $DEPLOYMENT_GATE_URL"
 
           response=$(curl -s -X POST "$DEPLOYMENT_GATE_URL/predict" \
             -H "Content-Type: application/json" \
-            -d @metrics.json)
+            -d '{
+             "repo": "'"${GITHUB_REPOSITORY}"'",
+              "sha": "'"${GITHUB_SHA}"'",
+              "run_id": "'"${GITHUB_RUN_ID}"'",
+             "branch": "'"${GITHUB_REF_NAME}"'"
+            }')
 
           echo "API response:"
           echo "$response"
