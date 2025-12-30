@@ -32,7 +32,7 @@ jobs:
              "branch": "'"${GITHUB_REF_NAME}"'"
             }')
 
-          echo "API response:"
+          
           echo "$response"
 
           decision=$(echo "$response" | jq -r '.decision')
