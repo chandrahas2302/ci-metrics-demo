@@ -29,7 +29,7 @@ jobs:
             -d '{
               "repo": "'"${GITHUB_REPOSITORY}"'",
               "branch": "'"${GITHUB_REF_NAME}"'",
-              "run_id": "'"${GITHUB_RUN_ID}"'"
+              "run_id": "'"${GITHUB_RUN_ID}"'",
               "sha": "'"${GITHUB_SHA}"'"
             }')
 
