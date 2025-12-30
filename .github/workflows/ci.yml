@@ -1,43 +1,48 @@
-name: CI Metrics Demo
+name: Deployment Gate CI
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
 
 jobs:
-  build:
+  deployment-gate:
     runs-on: ubuntu-latest
 
-    env:
-      DEPLOYMENT_GATE_URL: https://deployment-gate.onrender.com
-
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Send pipeline context to Deployment Gate API
+      - name: Call Deployment Gate API
+        env:
+          DEPLOYMENT_GATE_URL: https://deployment-gate.onrender.com
+          DEPLOYMENT_GATE_API_KEY: ${{ secrets.DEPLOYMENT_GATE_API_KEY }}
         run: |
-          echo "Sending pipeline context to Deployment Gate..."
+          echo "🚦 Calling Deployment Gate"
           echo "API URL: $DEPLOYMENT_GATE_URL"
 
           response=$(curl -s -X POST "$DEPLOYMENT_GATE_URL/predict" \
             -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $DEPLOYMENT_GATE_API_KEY" \
             -d '{
-             "repo": "'"${GITHUB_REPOSITORY}"'",
-              "sha": "'"${GITHUB_SHA}"'",
-              "run_id": "'"${GITHUB_RUN_ID}"'",
-             "branch": "'"${GITHUB_REF_NAME}"'"
+              "repo": "'"${GITHUB_REPOSITORY}"'",
+              "branch": "'"${GITHUB_REF_NAME}"'",
+              "run_id": "'"${GITHUB_RUN_ID}"'"
             }')
 
-          
+          echo "📨 API Response:"
           echo "$response"
 
-          decision=$(echo "$response" | jq -r '.decision')
+          decision=$(echo "$response" | jq -r '.decision // empty')
 
-          echo "Decision: $decision"
+          if [ -z "$decision" ]; then
+            echo "❌ Deployment Gate failed or unauthorized"
+            exit 1
+          fi
+
+          echo "🧠 Decision: $decision"
 
           if [ "$decision" = "BLOCK" ]; then
             echo "❌ Deployment blocked by AI gate"
